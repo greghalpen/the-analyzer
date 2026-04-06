@@ -13,10 +13,16 @@
   .hdr .sub { font-size: 13px; color: #555; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
   .hdr p { font-size: 16px; color: #888; line-height: 1.6; }
   .divider { height: 1px; background: #222; margin: 1.5rem 0; }
-  textarea { width: 100%; min-height: 160px; padding: 16px; font-size: 15px; border-radius: 8px; border: 1px solid #222; background: #111; color: #fff; resize: vertical; font-family: inherit; line-height: 1.6; }
-  textarea:focus { outline: none; border-color: #c8f000; }
-  textarea::placeholder { color: #444; }
-  .abtn { margin-top: 12px; width: 100%; padding: 16px; background: #c8f000; color: #0a0a0a; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.15s; }
+  .field { margin-bottom: 1.25rem; }
+  .field label { display: block; font-size: 13px; color: #c8f000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+  .field .hint { font-size: 12px; color: #444; margin-bottom: 8px; font-style: italic; }
+  .field input, .field textarea { width: 100%; padding: 12px 16px; font-size: 15px; border-radius: 8px; border: 1px solid #222; background: #111; color: #fff; font-family: inherit; line-height: 1.6; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: #c8f000; }
+  .field input::placeholder, .field textarea::placeholder { color: #444; }
+  .field textarea { min-height: 180px; resize: vertical; }
+  .copy-label { font-size: 16px; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; display: block; }
+  .copy-hint { font-size: 13px; color: #555; margin-bottom: 8px; font-style: italic; }
+  .abtn { margin-top: 16px; width: 100%; padding: 16px; background: #c8f000; color: #0a0a0a; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.15s; }
   .abtn:hover { opacity: 0.88; }
   .abtn:disabled { opacity: 0.4; cursor: not-allowed; }
   .rcard { margin-top: 2rem; border-radius: 8px; border: 1px solid #222; background: #111; overflow: hidden; display: none; }
@@ -29,6 +35,7 @@
   .rbody { padding: 1.25rem; font-size: 15px; color: #ccc; line-height: 1.8; white-space: pre-wrap; }
   .resetbtn { display: block; margin-top: 12px; font-size: 13px; color: #555; background: none; border: none; cursor: pointer; padding: 0; text-decoration: underline; }
   .resetbtn:hover { color: #888; }
+  .section-label { font-size: 11px; color: #333; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 1rem; margin-top: 1.5rem; }
   .footer { margin-top: 3rem; font-size: 12px; color: #333; text-align: center; letter-spacing: 2px; text-transform: uppercase; }
 </style>
 </head>
@@ -38,10 +45,44 @@
     <div class="sub">The Moody Creative — Anti-Griftr Workshop</div>
     <h1>THE ANALYZER</h1>
     <div class="divider"></div>
-    <p>Paste your marketing copy. We'll tell you if it sounds like you — or like everyone else. No sugarcoating.</p>
+    <p>Tell us a little about you and your brand first. Then paste your copy. We'll tell you if it sounds like you — or like everyone else. No sugarcoating.</p>
   </div>
 
-  <textarea id="ta" placeholder="Paste your marketing copy, bio, email, sales page, Instagram caption — anything you want analyzed..."></textarea>
+  <div class="section-label">About you + your brand</div>
+
+  <div class="field">
+    <label>Your brand voice in 3-5 words</label>
+    <div class="hint">e.g. edgy, raw, anti-hustle, sarcastic, warm</div>
+    <input type="text" id="voice" placeholder="How would you describe your vibe...">
+  </div>
+
+  <div class="field">
+    <label>Who are you talking to in this copy?</label>
+    <div class="hint">Not demographics — describe their energy and where they're at</div>
+    <input type="text" id="audience" placeholder="Describe your person...">
+  </div>
+
+  <div class="field">
+    <label>What do you want them to FEEL when they read this?</label>
+    <div class="hint">e.g. seen, fired up, relieved, called out, hopeful</div>
+    <input type="text" id="feeling" placeholder="The emotion you're going for...">
+  </div>
+
+  <div class="field">
+    <label>What's the one thing you want them to DO after reading?</label>
+    <div class="hint">e.g. reply, buy, sign up, just trust you more</div>
+    <input type="text" id="action" placeholder="The action you want them to take...">
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Your copy</div>
+
+  <div class="field">
+    <label>Paste your copy here</label>
+    <div class="hint">Email, bio, sales page, caption, headline — anything you want analyzed</div>
+    <textarea id="copy" placeholder="Paste it in. Don't clean it up first. We want to see the real thing..."></textarea>
+  </div>
+
   <button class="abtn" id="btn" onclick="runIt()">Analyze my copy</button>
 
   <div class="rcard" id="rcard">
@@ -58,8 +99,13 @@
 
 <script>
 async function runIt() {
-  const input = document.getElementById('ta').value.trim();
-  if (!input) return;
+  const voice = document.getElementById('voice').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const feeling = document.getElementById('feeling').value.trim();
+  const action = document.getElementById('action').value.trim();
+  const copy = document.getElementById('copy').value.trim();
+
+  if (!copy) { alert('Paste your copy in the bottom box first.'); return; }
 
   const btn = document.getElementById('btn');
   const rcard = document.getElementById('rcard');
@@ -75,11 +121,21 @@ async function runIt() {
   badge.textContent = '';
   badge.className = 'badge';
 
+  const context = `
+Brand voice: ${voice || 'not specified'}
+Audience: ${audience || 'not specified'}
+Desired feeling: ${feeling || 'not specified'}
+Desired action: ${action || 'not specified'}
+
+Copy to analyze:
+${copy}
+  `.trim();
+
   try {
     const res = await fetch('/.netlify/functions/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ copy: input })
+      body: JSON.stringify({ copy: context })
     });
 
     const data = await res.json();
@@ -110,7 +166,11 @@ async function runIt() {
 }
 
 function reset() {
-  document.getElementById('ta').value = '';
+  document.getElementById('voice').value = '';
+  document.getElementById('audience').value = '';
+  document.getElementById('feeling').value = '';
+  document.getElementById('action').value = '';
+  document.getElementById('copy').value = '';
   document.getElementById('rcard').style.display = 'none';
   document.getElementById('resetbtn').style.display = 'none';
   document.getElementById('btn').disabled = false;
