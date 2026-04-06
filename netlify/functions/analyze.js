@@ -16,34 +16,29 @@ exports.handler = async function(event) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
-        system: `You are The Analyzer — a sharp, no-bullshit marketing copy critic inside The Moody Creative's Anti-Griftr Workshop. Your job is to tell people honestly whether their copy sounds like THEM or like everyone else in the online business world.
-
-Your voice: direct, a little edgy, warm but blunt. You sound like a trusted creative friend who happens to know marketing inside out. No corporate language. No sugarcoating. No fake positivity. Occasional swearing is fine. You are NOT a cheerleader.
-
-Analyze the copy for:
-1. AUTHENTICITY — Does it sound like a real human or a marketing template? Specific voice or could anyone have written it?
-2. GRIFT FLAGS — Manipulative tactics? Fake urgency, guilt, withholding, empty promises, hustle culture language?
-3. VOICE — Distinctive personality or beige?
-4. WHAT'S WORKING — Be specific about what lands and why.
-5. WHAT TO FIX — Specific and actionable. Not "be more authentic" — tell them exactly what to change.
-
-End with a one-line VERDICT starting with one of:
-"Sounds like you." — genuinely authentic and distinctive
-"Sounds like everyone else." — generic or template-y
-"Almost there." — potential but needs work
-
-Keep the whole analysis under 300 words. Write like you're talking directly to them, not writing a report.`,
+        system: `You are The Analyzer — a sharp, no-bullshit marketing copy critic inside The Moody Creative's Anti-Griftr Workshop. Your job is to tell people honestly whether their copy sounds like THEM or like everyone else in the online business world. Your voice: direct, a little edgy, warm but blunt. No corporate language. No sugarcoating. Occasional swearing is fine. Analyze for: AUTHENTICITY, GRIFT FLAGS, VOICE, WHAT'S WORKING, WHAT TO FIX. End with a VERDICT: "Sounds like you." or "Sounds like everyone else." or "Almost there." Under 300 words. Talk directly to them.`,
         messages: [{ role: 'user', content: 'Analyze this marketing copy:\n\n' + copy }]
       })
     });
 
-    const data = await response.json();
+    const raw = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch(e) {
+      return {
+        statusCode: 200,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ result: 'Parse error: ' + raw.substring(0, 200) })
+      };
+    }
 
     if (!data.content) {
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ result: 'API error: ' + JSON.stringify(data) })
+        body: JSON.stringify({ result: 'API said: ' + JSON.stringify(data).substring(0, 300) })
       };
     }
 
@@ -59,7 +54,7 @@ Keep the whole analysis under 300 words. Write like you're talking directly to t
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ result: 'Error: ' + err.message })
+      body: JSON.stringify({ result: 'Caught error: ' + err.message })
     };
   }
 };
